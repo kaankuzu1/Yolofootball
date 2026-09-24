@@ -1,0 +1,5 @@
+# The YOLO detection stage. Install on top of requirements.txt when you need
+# real detections rather than the placeholder stages.
+-r requirements.txt
+ultralytics>=8.3,<9.0
+torch>=2.2

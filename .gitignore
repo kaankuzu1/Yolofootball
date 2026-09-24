@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Model weights and media: too big for version control.
+*.pt
+*.onnx
+*.engine
+*.mp4
+*.mov
+*.avi
+*.mkv
+!tests/data/*.mp4
+
+# Run outputs.
+out/
+runs/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+outputs/
+weights/

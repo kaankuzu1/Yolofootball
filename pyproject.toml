@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "football-analysis"
+version = "0.1.0"
+description = "Timestamped tackles, tricks, passes, shots and goals from a side-angle 1v1 football clip."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+# Pinned to a compatible range rather than an exact version: exact pins fight
+# with whatever CUDA build a GPU machine already has, and these are the ranges
+# the package is tested against.
+dependencies = [
+    "numpy>=1.26,<3.0",
+    "scipy>=1.11,<2.0",
+    "opencv-python>=4.9,<6.0",
+    "PyYAML>=6.0,<7.0",
+    "scikit-learn>=1.3,<2.0",
+    "joblib>=1.3,<2.0",
+]
+
+[project.optional-dependencies]
+# The detector's own dependency. Kept optional so the io, config, viz and CLI
+# layers can be installed, imported and tested without pulling in torch.
+detect = [
+    "ultralytics>=8.3,<9.0",
+    "torch>=2.2",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[project.scripts]
+football-analyse = "football_analysis.cli.main:main"
+
+[tool.setuptools.packages.find]
+include = ["football_analysis*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,11 @@
+# Runtime dependencies for the io / config / viz / CLI layers.
+# The detector's own dependencies live in requirements-detect.txt, so this
+# file installs and runs without a multi-gigabyte torch download.
+numpy>=1.26,<3.0
+# Hungarian matching for track association (scipy.optimize.linear_sum_assignment).
+scipy>=1.11,<2.0
+opencv-python>=4.9,<6.0
+PyYAML>=6.0,<7.0
+# The tackle/trick classifier and the file it is saved in.
+scikit-learn>=1.3,<2.0
+joblib>=1.3,<2.0

@@ -1,0 +1,83 @@
+# A worked example of every section. Copy it, change what you need, and pass
+# it with `-c`. Anything left out keeps its default, so a real config file is
+# usually much shorter than this one.
+
+video:
+  resize_width: 1280      # null to analyse at the clip's own resolution
+  frame_stride: 1         # 2 halves the work and halves temporal resolution
+  start_s: 0.0
+  end_s: null
+
+detection:
+  # The benchmark's pick: 82.6% ball recall at 86.4% precision, and faster than
+  # every alternative (docs/detection-report.md). Looked for under
+  # detection.weights_search_paths; never downloaded.
+  model_path: forzasys_soccer.pt
+  imgsz: 1280             # at 640 the ball is a few pixels and recall collapses
+  device: auto            # auto | cpu | cuda | cuda:0 | mps
+  confidence_threshold: 0.25
+  class_confidence:       # per-class floors; 0.35 is the ball's operating point
+    ball: 0.35
+    player: 0.35
+    goal: 0.30
+
+tracking:
+  max_players: 2          # it is a 1v1
+  max_age_frames: 30
+  ball_max_age_frames: 12
+  iou_threshold: 0.3
+  player_labels: ["Player 1", "Player 2"]
+
+events:
+  min_confidence: 0.40
+  min_gap_s: 0.5
+  possession_distance_px: 80.0
+  pass_min_distance_px: 120.0
+  tackle_max_distance_px: 90.0
+  shot_min_speed_px_s: 400.0
+  # push_past: a 1v1 has no teammate, so a knock past the defender to
+  # re-collect is its own event rather than a mislabelled pass.
+  enabled_types: [tackle, trick, pass, shot, goal, push_past]
+
+# The ball-event rules. The `events` section above holds the keys these share
+# with everything else; this section reaches the rest.
+ball_events:
+  # What counts as a pass. A strict 1v1 has no teammate, so `auto` logs a knock
+  # past the defender as `push_past` rather than inventing a pass.
+  #   auto   pass only when a feeder or teams say so, else push_past
+  #   teams  a pass only between players on the same side
+  #   any    any player-to-player ball transfer is a pass
+  #   never  never call a pass
+  pass_mode: auto
+  # A feeder is someone who serves the ball in and is not a defender. Naming one
+  # here is not enough on its own: the tracker only keeps as many identities as
+  # tracking.max_players, so a third person needs
+  #   tracking:
+  #     max_players: 3
+  #     player_labels: ["Player 1", "Player 2", "Feeder"]
+  # and then the label repeated below. With max_players 2 a feeder is never
+  # tracked, so this list would have nothing to match.
+  feeders: []
+  # Who is on whose side, when there are more than two people on the pitch,
+  # e.g. {"Player 1": "home", "Feeder": "home", "Player 2": "away"}.
+  teams: {}
+
+# Pose, read once the tracker has settled the boxes. Tackles and tricks are
+# read from these keypoints, so a run without pose reports neither.
+pose:
+  weights: yolo11s-pose.pt   # looked for under detection.weights_search_paths
+  crop_height: 320           # each player box is upscaled to this before inference
+
+# The tackle and trick classifier.
+body_events:
+  tackle_threshold: 0.5
+  # Set high on purpose: at 0.6 an ordinary sharp turn is called a trick about
+  # half the time on held-out clips, at 0.85 about 5%.
+  trick_threshold: 0.85
+
+output:
+  draw_boxes: true
+  draw_ball_trail: true
+  draw_events: true
+  event_banner_seconds: 2.0
+  json_indent: 2
