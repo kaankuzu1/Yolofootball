@@ -1,0 +1,27 @@
+{
+  "format": "football-event-labels",
+  "version": 1,
+  "clip": "assets/clips/broadcast_08fd33_4.mp4",
+  "fps": 25.0,
+  "span_s": [0.0, 30.0],
+  "labelled_types": ["pass", "possession_change", "push_past", "shot", "goal"],
+  "notes": "Built 2026-09-23 from the ball events thread's frame-by-frame check of its 13 events on this clip (out/ball_events_real/README.md), not an independent labelling pass: a moment neither the system nor that check noticed is not here. 11-a-side broadcast with a panning camera, so this validates the harness, not the 1v1 targets. Player ids are the tracklet ids of that run (T5, T21...), so they only mean something against out/ball_events_real/events_all_players.json. possession_change follows the system's convention: every time a new player gets the ball, including a pass reception. No shots or goals happen in the clip, and none are labelled.",
+  "events": [
+    {"type": "push_past", "timestamp_s": 0.76, "player_id": "T5", "ambiguous": true, "note": "T5 dribbling past T1 on the touchline; whether it is 'past' can't be judged while the camera pans"},
+    {"type": "pass", "timestamp_s": 2.0, "player_id": "T5", "note": "long ball forward to T6"},
+    {"type": "possession_change", "timestamp_s": 3.96, "player_id": "T6", "note": "T6 collects the long ball"},
+    {"type": "possession_change", "timestamp_s": 6.68, "player_id": "T24", "note": "T6's ball runs through to the dark-kit keeper: a turnover, not a pass"},
+    {"type": "pass", "timestamp_s": 12.24, "player_id": "T24", "note": "goal kick, won by the keeper's teammate T21"},
+    {"type": "possession_change", "timestamp_s": 14.68, "player_id": "T21", "note": "T21 receives the goal kick"},
+    {"type": "possession_change", "timestamp_s": 16.32, "player_id": "T3", "note": "white T3 gets a touch"},
+    {"type": "possession_change", "timestamp_s": 16.8, "player_id": "T12", "note": "green T12 wins it back; ball undetected here, time approximate"},
+    {"type": "pass", "window_s": [16.8, 20.4], "player_id": "T12", "note": "T12 plays T21 in; the ball is too small to see the release frame"},
+    {"type": "possession_change", "timestamp_s": 20.44, "player_id": "T21", "note": "T21 receives T12's pass"},
+    {"type": "possession_change", "timestamp_s": 22.28, "player_id": "T28", "note": "keeper claims T21's ball into the box"},
+    {"type": "possession_change", "timestamp_s": 23.92, "player_id": "T12", "note": "T12 wins the keeper's clearance"},
+    {"type": "pass", "window_s": [24.9, 26.0], "player_id": "T12", "note": "short lay-off to T11; release time inferred from the reception, not seen"},
+    {"type": "possession_change", "timestamp_s": 26.0, "player_id": "T11", "note": "T11 receives the lay-off"},
+    {"type": "possession_change", "timestamp_s": 28.08, "player_id": "T9", "note": "T9 wins the ball"},
+    {"type": "possession_change", "timestamp_s": 29.0, "player_id": "T2", "note": "T2 wins it after T30's challenge"}
+  ]
+}
