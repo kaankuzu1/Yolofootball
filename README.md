@@ -78,6 +78,15 @@ from the run, then score the system against it
 model retrains on your labelled moments with one command
 (`assets/body_events/README.md`).
 
+### Or use the Mac app
+
+A window instead of a terminal: pick the camera (the Mac's front camera by
+default; USB cameras and an iPhone appear by name when connected), click the
+goal's corners once, record, and get the event list beside the video with
+each event one click from its moment. Double-click
+`scripts/mac/1v1 Analiz.command` to set up and start it, or run
+`python -m football_analysis.app`. Steps in Turkish: `docs/mac-app.md`.
+
 ### How far to trust it today
 
 | What | Checked on | Result |
