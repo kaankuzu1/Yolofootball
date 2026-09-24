@@ -663,7 +663,9 @@ class MainWindow(QMainWindow):
         if self.mode != "live" or not self.live_check.isChecked() or self._frozen:
             return
         self.view.set_boxes(result.boxes)
-        self.view.badge = f"Canlı tespit · {result.fps:.0f} fps"
+        holder = next((b for b in result.boxes if b.has_ball), None)
+        who = f"Topta: Oyuncu {holder.track_id} · " if holder and holder.track_id else ""
+        self.view.badge = f"{who}Canlı tespit · {result.fps:.0f} fps"
 
     def _on_live_status(self, text: str) -> None:
         self.view.badge = text

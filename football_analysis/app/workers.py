@@ -57,6 +57,35 @@ class LiveBox:
     xyxy: tuple[float, float, float, float]
     confidence: float
     track_id: int | None = None
+    has_ball: bool = False
+
+
+def mark_possessor(boxes: list[LiveBox]) -> LiveBox | None:
+    """Flag the player with the ball at their feet, if anyone has it.
+
+    A live, per-frame reading: the ball is someone's when it sits near the
+    bottom of their box, within about half a body height of their feet. It is
+    for the eye, not for the timeline -- the analysis decides possession over
+    the whole clip with its own rules.
+    """
+    ball = max((b for b in boxes if b.kind == BALL), key=lambda b: b.confidence, default=None)
+    if ball is None:
+        return None
+    bx = (ball.xyxy[0] + ball.xyxy[2]) / 2.0
+    by = (ball.xyxy[1] + ball.xyxy[3]) / 2.0
+    best, best_d = None, None
+    for box in boxes:
+        if box.kind != PLAYER:
+            continue
+        x1, y1, x2, y2 = box.xyxy
+        height = max(1.0, y2 - y1)
+        feet_x, feet_y = (x1 + x2) / 2.0, y2
+        d = float(np.hypot(bx - feet_x, by - feet_y))
+        if d <= 0.55 * height and (best_d is None or d < best_d):
+            best, best_d = box, d
+    if best is not None:
+        best.has_ball = True
+    return best
 
 
 @dataclass
@@ -137,6 +166,10 @@ class LiveDetector(QThread):
 
         index = 0
         recent: list[float] = []
+        # The tracker numbers every new tracklet, so after a minute of play the
+        # boxes read "Oyuncu 57". People are numbered 1, 2, 3 in the order they
+        # first appear instead, which is what the eye expects in a 1v1.
+        numbers: dict[int, int] = {}
         while not self._stop.is_set():
             self._wake.wait(0.5)
             self._wake.clear()
@@ -170,6 +203,7 @@ class LiveDetector(QThread):
             index += 1
             if index % self.TRACKER_RESET_FRAMES == 0:
                 tracker.reset()
+                numbers.clear()
 
             now = time.monotonic()
             recent = [x for x in recent if now - x < 2.0] + [now]
@@ -178,13 +212,16 @@ class LiveDetector(QThread):
             for track in tracks:
                 if track.class_name not in (PLAYER, BALL, GOAL):
                     continue
+                if track.class_name == PLAYER and track.track_id not in numbers:
+                    numbers[track.track_id] = len(numbers) + 1
                 b = track.bbox
                 boxes.append(LiveBox(
                     kind=track.class_name,
                     xyxy=(b.x1 * inv, b.y1 * inv, b.x2 * inv, b.y2 * inv),
                     confidence=float(track.confidence),
-                    track_id=track.track_id if track.class_name == PLAYER else None,
+                    track_id=numbers[track.track_id] if track.class_name == PLAYER else None,
                 ))
+            mark_possessor(boxes)
             self.result.emit(LiveResult(
                 boxes=boxes, latency_ms=elapsed * 1000.0,
                 fps=len(recent) / 2.0, frame_t=t,

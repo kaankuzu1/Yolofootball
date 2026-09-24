@@ -225,8 +225,19 @@ class VideoView(QWidget):
             color = QColor(theme.ACCENT)
             label = "Kale"
         else:
-            color = QColor(PLAYER_COLORS[(box.track_id or 0) % len(PLAYER_COLORS)])
+            color = QColor(PLAYER_COLORS[((box.track_id or 1) - 1) % len(PLAYER_COLORS)])
             label = f"Oyuncu {box.track_id}" if box.track_id is not None else "Oyuncu"
+        if getattr(box, "has_ball", False):
+            # The player on the ball gets a glow and a filled tag, so who is
+            # playing it can be read at a glance from across the room.
+            glow = QColor(color)
+            glow.setAlpha(55)
+            painter.setBrush(glow)
+            painter.setPen(QPen(color, 4))
+            painter.drawRoundedRect(rect.adjusted(-3, -3, 3, 3), 6, 6)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            self._draw_tag(painter, rect.topLeft() + QPointF(-3, -3), f"⚽ {label} · topta", color)
+            return
         painter.setPen(QPen(color, 2))
         painter.drawRoundedRect(rect, 4, 4)
         self._draw_tag(painter, rect.topLeft(), label, color)

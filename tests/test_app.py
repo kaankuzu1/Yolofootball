@@ -28,7 +28,12 @@ from football_analysis.app.storage import (  # noqa: E402
     save_goal,
 )
 from football_analysis.app.theme import event_name  # noqa: E402
-from football_analysis.app.workers import AnalysisRequest, build_config  # noqa: E402
+from football_analysis.app.workers import (  # noqa: E402
+    AnalysisRequest,
+    LiveBox,
+    build_config,
+    mark_possessor,
+)
 from football_analysis.events import Event, EventType  # noqa: E402
 
 
@@ -179,3 +184,20 @@ def test_csv_opens_in_turkish_excel(tmp_path):
     assert [r["olay"] for r in rows] == ["Top kapma", "Gol"]   # time order
     assert rows[0]["kontrol_et"] == "evet"
     assert rows[1]["zaman"] == "00:12.500"
+
+
+# -- live possession mark ------------------------------------------------------
+
+def test_player_with_ball_at_feet_is_marked():
+    near = LiveBox("player", (100, 100, 140, 200), 0.9, 1)
+    far = LiveBox("player", (400, 100, 440, 200), 0.9, 2)
+    ball = LiveBox("ball", (135, 190, 145, 200), 0.8)
+    assert mark_possessor([near, far, ball]) is near
+    assert near.has_ball and not far.has_ball
+
+
+def test_loose_ball_marks_nobody():
+    player = LiveBox("player", (100, 100, 140, 200), 0.9, 1)
+    ball = LiveBox("ball", (300, 190, 310, 200), 0.8)
+    assert mark_possessor([player, ball]) is None
+    assert mark_possessor([player]) is None
