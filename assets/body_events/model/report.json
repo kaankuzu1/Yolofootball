@@ -1,0 +1,266 @@
+{
+  "model": {
+    "model_version": "body_events-1",
+    "trained_on": {
+      "contact": {
+        "synthetic:tackle_won": 205,
+        "synthetic:tackle_failed": 198,
+        "synthetic:no_contact": 461,
+        "synthetic:shoulder_duel": 142
+      },
+      "skill": {
+        "synthetic:dribble": 15046,
+        "synthetic:trick": 3170
+      }
+    },
+    "synthetic_per_scenario": 200,
+    "synthetic_seed": 1,
+    "trained_at": "2026-09-23T06:01:45Z"
+  },
+  "config": {
+    "trick_threshold": 0.85,
+    "tackle_threshold": 0.5
+  },
+  "synthetic_heldout": {
+    "clips": 400,
+    "tolerance_s": 0.5,
+    "tackle": {
+      "tp": 76,
+      "fp": 2,
+      "fn": 4,
+      "precision": 0.974,
+      "recall": 0.95,
+      "f1": 0.962,
+      "median_timing_error_s": 0.069,
+      "outcome_accuracy": 0.987
+    },
+    "trick": {
+      "tp": 144,
+      "fp": 6,
+      "fn": 16,
+      "precision": 0.96,
+      "recall": 0.9,
+      "f1": 0.929,
+      "median_timing_error_s": 0.233
+    },
+    "per_clip_type": {
+      "tackle_won": {
+        "clips": 40,
+        "with_tackle_call": 39,
+        "with_trick_call": 0,
+        "flagged_calls": 3,
+        "calls": 39,
+        "tackle_rate": 0.975,
+        "trick_rate": 0.0
+      },
+      "tackle_failed": {
+        "clips": 40,
+        "with_tackle_call": 37,
+        "with_trick_call": 0,
+        "flagged_calls": 4,
+        "calls": 38,
+        "tackle_rate": 0.925,
+        "trick_rate": 0.0
+      },
+      "shoulder_duel": {
+        "clips": 40,
+        "with_tackle_call": 1,
+        "with_trick_call": 3,
+        "flagged_calls": 1,
+        "calls": 4,
+        "tackle_rate": 0.025,
+        "trick_rate": 0.075
+      },
+      "no_contact": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 0,
+        "flagged_calls": 0,
+        "calls": 0,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.0
+      },
+      "dribble": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 0,
+        "flagged_calls": 0,
+        "calls": 0,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.0
+      },
+      "turn": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 2,
+        "flagged_calls": 0,
+        "calls": 2,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.05
+      },
+      "stepover": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 38,
+        "flagged_calls": 0,
+        "calls": 38,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.95
+      },
+      "dragback": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 39,
+        "flagged_calls": 1,
+        "calls": 39,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.975
+      },
+      "feint": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 32,
+        "flagged_calls": 0,
+        "calls": 32,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.8
+      },
+      "nutmeg": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 35,
+        "flagged_calls": 0,
+        "calls": 36,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.875
+      }
+    },
+    "tackle_on_shoulder_duel": 0.025,
+    "tackle_on_no_contact": 0.0,
+    "trick_on_dribble": 0.0,
+    "trick_on_turn": 0.05,
+    "nutmeg_named_rate": 0.875,
+    "nutmeg_on_other_clips": 0.008
+  },
+  "synthetic_hard_sensor": {
+    "clips": 400,
+    "tolerance_s": 0.5,
+    "tackle": {
+      "tp": 68,
+      "fp": 1,
+      "fn": 12,
+      "precision": 0.986,
+      "recall": 0.85,
+      "f1": 0.913,
+      "median_timing_error_s": 0.068,
+      "outcome_accuracy": 0.971
+    },
+    "trick": {
+      "tp": 132,
+      "fp": 20,
+      "fn": 28,
+      "precision": 0.868,
+      "recall": 0.825,
+      "f1": 0.846,
+      "median_timing_error_s": 0.26
+    },
+    "per_clip_type": {
+      "tackle_won": {
+        "clips": 40,
+        "with_tackle_call": 34,
+        "with_trick_call": 0,
+        "flagged_calls": 22,
+        "calls": 34,
+        "tackle_rate": 0.85,
+        "trick_rate": 0.0
+      },
+      "tackle_failed": {
+        "clips": 40,
+        "with_tackle_call": 34,
+        "with_trick_call": 1,
+        "flagged_calls": 22,
+        "calls": 35,
+        "tackle_rate": 0.85,
+        "trick_rate": 0.025
+      },
+      "shoulder_duel": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 1,
+        "flagged_calls": 1,
+        "calls": 1,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.025
+      },
+      "no_contact": {
+        "clips": 40,
+        "with_tackle_call": 1,
+        "with_trick_call": 1,
+        "flagged_calls": 2,
+        "calls": 2,
+        "tackle_rate": 0.025,
+        "trick_rate": 0.025
+      },
+      "dribble": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 1,
+        "flagged_calls": 0,
+        "calls": 1,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.025
+      },
+      "turn": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 15,
+        "flagged_calls": 7,
+        "calls": 15,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.375
+      },
+      "stepover": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 40,
+        "flagged_calls": 22,
+        "calls": 40,
+        "tackle_rate": 0.0,
+        "trick_rate": 1.0
+      },
+      "dragback": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 39,
+        "flagged_calls": 26,
+        "calls": 39,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.975
+      },
+      "feint": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 33,
+        "flagged_calls": 19,
+        "calls": 33,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.825
+      },
+      "nutmeg": {
+        "clips": 40,
+        "with_tackle_call": 0,
+        "with_trick_call": 20,
+        "flagged_calls": 5,
+        "calls": 21,
+        "tackle_rate": 0.0,
+        "trick_rate": 0.5
+      }
+    },
+    "tackle_on_shoulder_duel": 0.0,
+    "tackle_on_no_contact": 0.025,
+    "trick_on_dribble": 0.025,
+    "trick_on_turn": 0.375,
+    "nutmeg_named_rate": 0.475,
+    "nutmeg_on_other_clips": 0.003
+  }
+}
