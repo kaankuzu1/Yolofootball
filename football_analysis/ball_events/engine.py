@@ -359,11 +359,16 @@ def detect_ball_events(state: ClipState, cfg: BallEventConfig | None = None) -> 
         # 4. To another player.
         if receiver is not None and receiver != f.releaser:
             is_pass, relation = _is_pass(f.releaser, receiver, cfg, n_ids)
-            long_enough = f.displacement_px >= cfg.pass_min_distance_d * ruler
+            # The minimum distance separates a pass from a duel.  Teammates
+            # don't duel, so a short lay-off between them is still a pass.
+            short = f.displacement_px < cfg.pass_min_distance_d * ruler
+            long_enough = not short or relation == "team"
             quick_enough = (state.timestamps[f.end_frame] - state.timestamps[f.release_frame]
                             <= cfg.pass_max_duration_s)
             if is_pass and long_enough and quick_enough:
                 conf = 0.8 if relation == "team" else 0.6
+                if short:
+                    conf -= 0.2
                 if f.terminal == "rest":
                     conf -= 0.1
                 events.append(_event(
@@ -373,7 +378,8 @@ def detect_ball_events(state: ClipState, cfg: BallEventConfig | None = None) -> 
                             "distance_px": round(f.displacement_px, 1),
                             "distance_d": round(f.displacement_px / ruler, 1),
                             "received_frame_index": int(state.frame_indices[f.end_frame]),
-                            "team_relation": relation, "pass_mode": cfg.pass_mode, **common},
+                            "team_relation": relation, "pass_mode": cfg.pass_mode,
+                            "short": short, **common},
                 ))
                 flight_labels[i] = "pass"
             else:

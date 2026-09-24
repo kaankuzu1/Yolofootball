@@ -82,6 +82,11 @@ class BallEventConfig:
     rest_min_s: float = 0.5
     """... and must stay stopped this long for a flight to end at ``rest``."""
 
+    hidden_touch_max_gap_s: float = 0.6
+    """A touch is looked for inside a detector gap up to this long, by comparing
+    the ball's detected velocity either side of it.  Longer gaps are left alone:
+    too much can happen unseen."""
+
     edge_margin_px: float = 12.0
     """A ball last seen within this of the frame edge left the frame."""
 
@@ -107,7 +112,8 @@ class BallEventConfig:
     """``player_id`` -> side, e.g. ``{"Player 1": "A", "Feeder": "A"}``."""
 
     pass_min_distance_d: float = 8.0
-    """A transfer shorter than this (~1.8 m) is a touch or a duel, not a pass."""
+    """A transfer shorter than this (~1.8 m) is a touch or a duel, not a pass,
+    unless the two players are known teammates (``teams`` or ``feeders``)."""
 
     pass_max_duration_s: float = 4.0
 
@@ -184,6 +190,8 @@ class BallEventConfig:
             raise ValueError(f"pass_mode must be one of {_PASS_MODES}, got {self.pass_mode!r}")
         if self.possession_min_frames < 1:
             raise ValueError("possession_min_frames must be >= 1")
+        if self.hidden_touch_max_gap_s < 0:
+            raise ValueError("hidden_touch_max_gap_s must be >= 0 (0 turns the check off)")
         lo, hi = self.depth_ratio_range
         if not 0 < lo < hi:
             raise ValueError("depth_ratio_range must be (lo, hi) with 0 < lo < hi")

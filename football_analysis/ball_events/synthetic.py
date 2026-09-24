@@ -287,6 +287,18 @@ def goal_in_gap() -> Scenario:
                                         "needs_review": True})
 
 
+def hidden_touch() -> Scenario:
+    """Player 2 redirects a pass while the detector has lost the ball."""
+    s = Scene(4.0, goal_box=None, fill_s=0.5)
+    s.players = {"Player 1": [(0, 400), (4.0, 420)], "Player 2": [(0, 800), (4.0, 800)]}
+    s.ball.append((0.0, 1.2, s.at_feet("Player 1", wobble=0.2)))
+    s.ball.append((1.2, 2.0, s.kick(1.2, 2.0, s.at_feet("Player 1"), (790, GROUND_Y - BALL_D / 2))))
+    s.ball.append((2.0, 4.0, s.kick(2.0, 3.2, (790, GROUND_Y - BALL_D / 2), (1000, 150))))
+    s.hidden = [(1.84, 2.2)]
+    return Scenario("hidden_touch", s, {"possession_change": 1,
+                                         "possession_change.cause": ("interception", "loose_ball")})
+
+
 def goal_no_net() -> Scenario:
     sc = goal()
     sc.scene.net_reading = False
@@ -314,7 +326,7 @@ def dribble() -> Scenario:
 
 SCENARIOS: dict[str, Callable[[], Scenario]] = {
     f.__name__: f for f in (goal, saved, post, push_past, feeder_pass, turnover, wide,
-                            goal_in_gap, goal_no_net, behind_goal, dribble)
+                            goal_in_gap, hidden_touch, goal_no_net, behind_goal, dribble)
 }
 
 

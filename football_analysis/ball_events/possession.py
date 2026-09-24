@@ -139,7 +139,77 @@ def detect_breaks(state: ClipState, ruler: float, cfg: BallEventConfig) -> np.nd
             out[k:j + 1] = False
             out[keep] = True
         k = j + 1
+    out |= _breaks_hidden_in_gaps(state, out, ruler, cfg)
     out &= state.present
+    return out
+
+
+def _observed_velocity(state: ClipState, idx: np.ndarray) -> np.ndarray | None:
+    """Least-squares velocity over the detected frames ``idx``, px/s."""
+    if len(idx) < 3:
+        return None
+    t = state.timestamps[idx] - state.timestamps[idx].mean()
+    denom = float((t * t).sum())
+    if denom <= 0:
+        return None
+    p = state.ball_xy[idx] - state.ball_xy[idx].mean(axis=0)
+    return (t[:, None] * p).sum(axis=0) / denom
+
+
+def _breaks_hidden_in_gaps(state: ClipState, known: np.ndarray, ruler: float,
+                           cfg: BallEventConfig) -> np.ndarray:
+    """Touches that happened while the detector lost the ball.
+
+    A smoother bridges a gap with a gentle curve, so a kick inside the gap
+    never shows as a step in velocity.  The detected frames either side of the
+    gap still disagree, though: compare the velocity just before the gap with
+    the velocity just after, and if they differ the way a touch does, place
+    the break at the gap frame where the bridged ball comes closest to a
+    player's feet (the middle of the gap if nobody is near).
+    """
+    n = len(state)
+    out = np.zeros(n, dtype=bool)
+    seen = state.observed
+    rest = cfg.rest_speed_d * ruler
+    max_gap = int(round(cfg.hidden_touch_max_gap_s * state.fps))
+    if max_gap < 1:
+        return out
+    k = 0
+    while k < n:
+        if seen[k]:
+            k += 1
+            continue
+        a = k
+        while k < n and not seen[k]:
+            k += 1
+        b = k - 1  # gap is a..b inclusive
+        if a == 0 or k >= n or b - a + 1 > max_gap:
+            continue
+        if known[max(0, a - 2):min(n, b + 3)].any():
+            continue
+        before = np.arange(max(0, a - 4), a)
+        before = before[seen[before]]
+        after = np.arange(b + 1, min(n, b + 5))
+        after = after[seen[after]]
+        vb, va = _observed_velocity(state, before), _observed_velocity(state, after)
+        if vb is None or va is None:
+            continue
+        sb, sa = float(np.linalg.norm(vb)), float(np.linalg.norm(va))
+        if max(sb, sa) < 2 * rest:
+            continue
+        ratio = (sa + 1e-6) / (sb + 1e-6)
+        cos = float(np.dot(vb, va) / (sb * sa)) if sb > rest and sa > rest else 1.0
+        if not (ratio > 1.8 or ratio < 1 / 1.8 or cos < np.cos(np.radians(35))):
+            continue
+        best, best_d = (a + b) // 2, np.inf
+        for j in range(a, b + 1):
+            if not state.present[j]:
+                continue
+            for p in state.players[j]:
+                d = foot_distance(state.ball_xy[j], p, cfg)
+                if d < best_d:
+                    best, best_d = j, d
+        out[best] = True
     return out
 
 

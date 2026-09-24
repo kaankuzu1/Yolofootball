@@ -131,6 +131,35 @@ def test_pass_confidence_is_lower_without_team_information() -> None:
     assert c_known > c_guess
 
 
+def _lay_off_scene():
+    from football_analysis.ball_events.synthetic import BALL_D, GROUND_Y, Scene
+    s = Scene(3.0, goal_box=None)
+    s.players = {"Feeder": [(0, 560), (3.0, 560)], "Player 1": [(0, 640), (3.0, 700)],
+                 "Player 2": [(0, 1000), (3.0, 1000)]}
+    s.ball.append((0.0, 1.0, s.at_feet("Feeder", ahead=0.2)))
+    s.ball.append((1.0, 1.3, s.kick(1.0, 1.3, s.at_feet("Feeder", ahead=0.2), (640, GROUND_Y - BALL_D / 2))))
+    s.ball.append((1.3, 3.0, s.at_feet("Player 1", wobble=0.2)))
+    return s
+
+
+def test_a_short_lay_off_between_teammates_is_a_pass() -> None:
+    clip = _lay_off_scene().build()
+    known = detect_ball_events(clip, BallEventConfig.from_dict({"feeders": ["Feeder"]}))
+    passes = [e for e in known.events if e.type is EventType.PASS]
+    assert len(passes) == 1 and passes[0].detail["short"] is True
+    assert passes[0].confidence < 0.8
+    # Without knowing they are teammates, a transfer that short could be a duel.
+    assert not any(e.type is EventType.PASS for e in detect_ball_events(clip).events)
+
+
+def test_a_touch_hidden_in_a_detector_gap_is_found() -> None:
+    clip = SCENARIOS["hidden_touch"]().scene.build()
+    found = detect_ball_events(clip)
+    blind = detect_ball_events(clip, BallEventConfig(hidden_touch_max_gap_s=0))
+    assert any(c.player_id == "Player 2" for c in found.possession.contacts)
+    assert not any(c.player_id == "Player 2" for c in blind.possession.contacts)
+
+
 # -- the per-frame record ------------------------------------------------------------
 
 
