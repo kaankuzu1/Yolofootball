@@ -1,0 +1,17 @@
+{
+  "clip": "broadcast_08fd33_4.mp4",
+  "method": "Every 30th frame was rendered with every ball candidate from an ensemble (YOLO11x COCO at 1280, the same tiled, and the football-finetuned model tiled, all at conf>=0.04) circled and numbered, plus a zoomed crop of each. A human picked which candidate, if any, is the match ball; frames where no candidate was the ball were re-checked at 2.2x zoom over the whole pitch before being called absent.",
+  "candidate_choice": {
+    "0": 0, "30": 0, "60": 0, "90": 0, "120": null,
+    "150": 0, "180": 0, "210": 0, "240": 1, "270": 0,
+    "300": 0, "330": 0, "360": 0, "390": 0, "420": null,
+    "450": "nearest:1583,556", "480": 1, "510": 0, "540": 1, "570": 0,
+    "600": 0, "630": 0, "660": 0, "690": 0, "720": 0
+  },
+  "notes": {
+    "120": "Camera at its widest; ball not visible anywhere on the pitch at 2.2x zoom.",
+    "420": "Ball not visible anywhere on the pitch at 2.2x zoom.",
+    "recurring_fp_left_edge": "Frames 150-330 carry a persistent whitish smear near the left touchline that the football-finetuned model scores 0.15-0.8. It is not the match ball and is counted as a false positive.",
+    "recurring_fp_crowd": "Frames 480-720: a yellow-green object in the stand that the COCO model scores 0.1-0.25 as a sports ball."
+  }
+}
