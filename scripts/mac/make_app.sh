@@ -13,7 +13,11 @@ REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 APP="${APP_DIR:-$HOME/Applications}/1v1 Analiz.app"
 
 if [ ! -x "$REPO/.venv/bin/python" ]; then
-  echo "Önce \"scripts/mac/1v1 Analiz.command\" dosyasını bir kez çalıştırın (.venv kurulur)."
+  echo "Önce kurulumu bir kez yapın (paketleri kurar ve uygulamayı açar):"
+  echo ""
+  echo "    bash \"scripts/mac/1v1 Analiz.command\""
+  echo ""
+  echo "Sonra bu komutu yeniden çalıştırın."
   exit 1
 fi
 
