@@ -634,3 +634,7 @@ per second on CPU. That clip is broadcast footage rather than the side-angle
 1v1 the system targets, so it exercises the plumbing, not the 1v1 assumptions:
 with `max_players: 2` the tracker holds two identities out of twenty-two, which
 is the configured behaviour rather than a detection result.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
