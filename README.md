@@ -196,8 +196,16 @@ football-analyse CLIP [-o events.json] [--render annotated.mp4]
   --state-cache PATH      write the per-frame world-state record, for --replay
   --replay PATH           re-run event logic over a cached record, no clip needed
   --goal-corners LIST     the four goal-mouth corners, annotated once per setup
+  --goal-corners-space S  source (default) | processed: what resolution the
+                          corners were read at
   --goal-size W H         goal mouth in metres (default 3 2)
+  --max-frames N          stop after N processed frames
+  --confidence X          global detection confidence floor
+  --min-event-confidence X  drop events below this confidence
+  --codec FOURCC          force an output codec
+  --no-boxes / --no-trail do not draw boxes / the ball trail
   --print-config          show the resolved settings and exit
+  -q / -v, --no-progress, --version
 ```
 
 Settings resolve in three layers, most specific last: defaults, then the
@@ -413,7 +421,7 @@ them and merges what they call:
 ```python
 from football_analysis.adapters import CompositeEventDetector
 
-event_detector = CompositeEventDetector(BallEventDetector(config), TackleDetector(config))
+event_detector = CompositeEventDetector(BallEventDetector(config), BodyEventDetector(config))
 ```
 
 `default_event_stage(config)` builds this for you -- the real rule engines
@@ -430,7 +438,7 @@ football-analyse match.mp4 -o events.json --state-cache state.jsonl
 football-analyse --replay state.jsonl -o events.json --events tackle,pass,shot,goal
 ```
 
-On a 100-frame segment of the broadcast clip in `assets/`, inference takes
+On a 100-frame segment of the broadcast clip (`broadcast_08fd33_4.mp4`, not in the repository; `*.mp4` is gitignored), inference takes
 about 26 seconds on CPU and replaying the same frames from the record takes
 0.003 seconds. Tuning a tackle threshold is a file read, not a re-run.
 
@@ -523,9 +531,12 @@ football_analysis/
   ball_events/    possession, pass, shot, goal, over the record
   body_events/    tackles and tricks, over pose
   evaluation/     the accuracy scorecard against hand labels
+  app/            the desktop app (PySide6)
 tests/            the suite below
-scripts/          make_sample_clip.py
+scripts/          make_sample_clip.py, pick_goal_corners.py, mac/ (Mac launcher)
 configs/          a worked example config
+docs/             design plan, detection report, Mac app guide (Turkish)
+assets/           goal weights, body-event model and dataset, annotations
 ```
 
 All bounding boxes live in the coordinate space of `VideoFrame.image` -- after
@@ -591,7 +602,7 @@ side had to change:
 from football_analysis.adapters import adapt_detector
 from football_analysis.detection import Detector, DetectorConfig
 
-raw = Detector(DetectorConfig(weights="assets/models/hayati_football.pt", imgsz=1280))
+raw = Detector(DetectorConfig(weights="assets/models/forzasys_soccer.pt", imgsz=1280))
 detector = adapt_detector(raw, label_map={"goalkeeper": "player"}, keep=["player", "ball"])
 ```
 
@@ -608,10 +619,10 @@ python -m pytest
 `python -m pytest` rather than a bare `pytest`, so the tests run in the same
 Python the package was installed into.
 
-The suite needs no network and no model weights. The foundation's own layers
-(io, config, viz, cli, state, pipeline, adapters) carry 224 of the tests; the
-detection, tracking, event and scorecard modules add their own alongside them,
-for 373 in total.
+The suite needs no network and no model weights; tests that need
+`assets/models/forzasys_soccer.pt` or PySide6 (the desktop app) skip when it is
+missing. Without PySide6 it collects 388 tests; `tests/test_app.py` adds more
+when PySide6 is installed.
 
 Two environment snags worth knowing:
 
@@ -620,15 +631,17 @@ Two environment snags worth knowing:
   `MKL_THREADING_LAYER=GNU` and run it again.
 - On a network-mounted working copy, reading a cached `.pyc` can hang
   indefinitely and the run simply stops with no error. Set
-  `PYTHONDONTWRITEBYTECODE=1`, or work from a local copy. They render a real video
-file and read it back, so the reader, the writer, the overlay and the CLI are
+  `PYTHONDONTWRITEBYTECODE=1`, or work from a local copy.
+
+The reader, writer, overlay and CLI tests render a real video
+file and read it back, so they are
 tested against actual decoding rather than mocks. The container behaviour that
 cannot be provoked from a file OpenCV wrote -- a missing presentation time, a
 stalled one, a nonsense frame rate -- is tested against the timing logic with a
 stand-in capture.
 
 The foundation has also been run for real, end to end: the YOLO stage from
-`football_analysis/detection/` on `assets/clips/broadcast_08fd33_4.mp4` at
+`football_analysis/detection/` on `broadcast_08fd33_4.mp4` (not in the repository) at
 1280px, writing both a timeline and an annotated clip, at roughly 4.5 frames
 per second on CPU. That clip is broadcast footage rather than the side-angle
 1v1 the system targets, so it exercises the plumbing, not the 1v1 assumptions:
